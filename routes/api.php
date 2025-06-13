@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\FlareController;
+use App\Http\Controllers\Api\AuthController;
+
+// Authentication routes (no auth required)
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Public routes - anyone can view flares (no auth required)
+Route::prefix('flares')->group(function () {
+    Route::get('/', [FlareController::class, 'index']); // Get all flares for map
+    Route::get('/{flare}', [FlareController::class, 'show']); // Get specific flare details
+    Route::get('/nearby/known-places', [FlareController::class, 'nearbyKnownPlaces']); // Get nearby known places
+});
+
+// Protected routes - require authentication via Sanctum
+Route::middleware('auth:sanctum')->group(function () {
+    // Auth routes
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/user', [AuthController::class, 'user']);
+    
+    // Flare management - users must be logged in
+    Route::prefix('flares')->group(function () {
+        Route::post('/', [FlareController::class, 'store']); // Create new flare
+        Route::put('/{flare}', [FlareController::class, 'update']); // Update own flare
+        Route::delete('/{flare}', [FlareController::class, 'destroy']); // Delete own flare
+        Route::post('/{flare}/images', [FlareController::class, 'uploadImage']); // Add image to flare
+        Route::post('/{flare}/contribute', [FlareController::class, 'contribute']); // Add to existing flare
+    });
+    
+    // User profile routes
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+});
