@@ -20,6 +20,7 @@ class UserController extends Controller
     public function profile(Request $request)
     {
         $user = $request->user();
+        $user->refresh();
 
         return response()->json([
             'id' => $user->id,
@@ -27,8 +28,8 @@ class UserController extends Controller
             'email' => $user->email,
             'username' => $user->username ?? null,
             'profile_photo_url' => $user->profile_photo_path 
-                ? Storage::url($user->profile_photo_path) 
-                : null,
+            ? url(Storage::url($user->profile_photo_path))  // This gives full URL
+            : null,
             'created_at' => $user->created_at,
             'updated_at' => $user->updated_at,
         ]);
@@ -78,31 +79,45 @@ class UserController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateProfilePhoto(Request $request)
-    {
-        $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
-        ]);
+public function updateProfilePhoto(Request $request)
+{
+    $request->validate([
+        'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB max
+    ]);
 
-        $user = $request->user();
+    $user = $request->user();
 
-        // Delete old photo if exists
-        if ($user->profile_photo_path) {
-            Storage::delete($user->profile_photo_path);
-        }
-
-        // Store new photo
-        $path = $request->file('photo')->store('profile-photos', 'public');
-        
-        $user->update([
-            'profile_photo_path' => $path
-        ]);
-
-        return response()->json([
-            'message' => 'Profile photo updated successfully',
-            'profile_photo_url' => Storage::url($path)
-        ]);
+    // Delete old photo if exists
+    if ($user->profile_photo_path) {
+        Storage::delete($user->profile_photo_path);
     }
+
+    // Store new photo
+    $path = $request->file('photo')->store('profile-photos', 'public');
+            
+    $user->update([
+        'profile_photo_path' => $path
+    ]);
+
+    // Refresh to get updated data
+    $user->refresh();
+
+      $fullPhotoUrl = url(Storage::url($path));
+
+    return response()->json([
+        'message' => 'Profile photo updated successfully',
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'username' => $user->username,
+            'email' => $user->email,
+            'profile_photo_url' => $fullPhotoUrl,
+            'profile_photo_path' => $path,
+            'created_at' => $user->created_at->toISOString(), // or ->format('Y-m-d\TH:i:s\Z')
+            'updated_at' => $user->updated_at->toISOString(), // or ->format('Y-m-d\TH:i:s\Z')
+        ]
+    ]);
+}
 
     /**
      * Delete user profile photo
