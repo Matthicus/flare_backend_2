@@ -45,7 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     
     // Legacy user route (keep for compatibility)
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', [UserController::class, 'profile']); // Changed from closure to controller method
 });
