@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\FlareController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 
 // Authentication routes (no auth required)
 Route::prefix('auth')->group(function () {
@@ -34,6 +35,16 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     
     // User profile routes
+    Route::prefix('user')->group(function () {
+        Route::get('/', [UserController::class, 'profile']); // Get current user profile
+        Route::put('/profile', [UserController::class, 'updateProfile']); // Update profile (name, username)
+        Route::post('/profile-photo', [UserController::class, 'updateProfilePhoto']); // Update profile photo
+        Route::delete('/profile-photo', [UserController::class, 'deleteProfilePhoto']); // Delete profile photo
+        Route::get('/flares', [UserController::class, 'userFlares']); // Get user's flares
+        Route::get('/stats', [UserController::class, 'userStats']); // Get user statistics
+    });
+    
+    // Legacy user route (keep for compatibility)
     Route::get('/user', function (Request $request) {
         return $request->user();
     });

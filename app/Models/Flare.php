@@ -24,6 +24,9 @@ class Flare extends Model
         'photo_url', // automatically include photo URL in responses
     ];
 
+    // Load user data by default when fetching flares
+    protected $with = ['user:id,name,username,profile_photo_path'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -43,5 +46,17 @@ class Flare extends Model
     public function getPhotoUrlAttribute()
     {
         return $this->photo_path ? asset('storage/' . $this->photo_path) : null;
+    }
+
+    // Accessor to get user display name
+    public function getUserDisplayNameAttribute()
+    {
+        return $this->user?->username ?? $this->user?->name ?? 'Anonymous';
+    }
+
+    // Accessor to get user profile photo URL
+    public function getUserProfilePhotoUrlAttribute()
+    {
+        return $this->user?->profile_photo_url;
     }
 }

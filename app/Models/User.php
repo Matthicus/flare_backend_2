@@ -29,6 +29,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'username', // Add username to fillable fields
     ];
 
     /**
@@ -63,5 +64,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the user's flares.
+     */
+    public function flares()
+    {
+        return $this->hasMany(Flare::class);
+    }
+
+    /**
+     * Get the user's username or fallback to name.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->username ?? $this->name;
     }
 }
