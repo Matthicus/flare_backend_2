@@ -6,6 +6,11 @@ use App\Http\Controllers\Api\FlareController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 
+// Handle OPTIONS requests for all routes (CORS preflight)
+Route::options('{any}', function () {
+    return response('', 200);
+})->where('any', '.*');
+
 // Authentication routes (no auth required)
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
