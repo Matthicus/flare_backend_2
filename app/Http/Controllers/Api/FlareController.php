@@ -13,7 +13,12 @@ class FlareController extends Controller
 {
     public function index()
     {
-        return Flare::with(['user', 'place', 'knownPlace'])->latest()->get();
+        $flares = Flare::with(['user', 'place', 'knownPlace'])->latest()->get();
+    
+        return response()->json($flares)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function show($id)
@@ -91,7 +96,10 @@ class FlareController extends Controller
             'photo_path' => $photoPath,
         ]);
 
-        return response()->json($flare->load(['user', 'place', 'knownPlace']), 201);
+        return response()->json($flare->load(['user', 'place', 'knownPlace']), 201)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function update(Request $request, $id)
