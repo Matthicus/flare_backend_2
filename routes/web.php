@@ -6,11 +6,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/storage/{path}', function ($path) {
+Route::get('/files/{path}', function ($path) {
+    $path = str_replace(['../', '..\\'], '', $path);
     $file = storage_path('app/public/' . $path);
-    if (!file_exists($file)) {
+    
+    if (!file_exists($file) || !is_file($file)) {
         abort(404);
     }
+    
     return response()->file($file);
 })->where('path', '.*');
 
@@ -23,7 +26,3 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
-
-Route::get('/test-storage/{path}', function ($path) {
-    return "Laravel route working! Path: " . $path;
-})->where('path', '.*');
