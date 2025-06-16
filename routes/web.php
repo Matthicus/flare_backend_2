@@ -23,3 +23,7 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+Route::get('/test-storage/{path}', function ($path) {
+    return "Laravel route working! Path: " . $path;
+})->where('path', '.*');
