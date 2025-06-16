@@ -6,16 +6,16 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/files/{path}', function ($path) {
-    $path = str_replace(['../', '..\\'], '', $path);
-    $file = storage_path('app/public/' . $path);
+// Route::get('/files/{path}', function ($path) {
+//     $path = str_replace(['../', '..\\'], '', $path);
+//     $file = storage_path('app/public/' . $path);
     
-    if (!file_exists($file) || !is_file($file)) {
-        abort(404);
-    }
+//     if (!file_exists($file) || !is_file($file)) {
+//         abort(404);
+//     }
     
-    return response()->file($file);
-})->where('path', '.*');
+//     return response()->file($file);
+// })->where('path', '.*');
 
 Route::middleware([
     'auth:sanctum',
