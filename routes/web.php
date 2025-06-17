@@ -43,3 +43,16 @@ Route::get('/test-session', function () {
         'app_url' => config('app.url'),
     ]);
 });
+
+Route::get('/auth-check', function () {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user_id' => auth()->id(),
+        'user_email' => auth()->user()?->email,
+        'guards' => [
+            'web' => auth('web')->check(),
+            'sanctum' => auth('sanctum')->check(),
+        ],
+        'session_id' => session()->getId(),
+    ]);
+});
