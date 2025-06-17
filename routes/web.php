@@ -17,9 +17,9 @@ Route::middleware([
     })->name('dashboard');
 });
 
-// Admin routes
+// Admin routes - use 'auth' instead of 'auth:sanctum' for web authentication
 Route::middleware([
-    'auth:sanctum',
+    'auth',  // Changed from 'auth:sanctum' to 'auth' for web sessions
     config('jetstream.auth_session'),
     'verified',
     'admin'
