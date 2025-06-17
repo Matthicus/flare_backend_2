@@ -17,9 +17,9 @@ Route::middleware([
     })->name('dashboard');
 });
 
-// Admin routes - use 'auth' instead of 'auth:sanctum' for web authentication
+// Admin routes
 Route::middleware([
-    'auth',  // Changed from 'auth:sanctum' to 'auth' for web sessions
+    'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
     'admin'
@@ -32,4 +32,14 @@ Route::middleware([
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
     Route::delete('/flares/{flare}', [AdminController::class, 'deleteFlare'])->name('flares.delete');
     Route::patch('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
+});
+
+Route::get('/test-session', function () {
+    return response()->json([
+        'session_id' => session()->getId(),
+        'csrf_token' => csrf_token(),
+        'session_driver' => config('session.driver'),
+        'session_domain' => config('session.domain'),
+        'app_url' => config('app.url'),
+    ]);
 });
