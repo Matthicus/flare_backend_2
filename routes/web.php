@@ -8,7 +8,7 @@ Route::get('/', function () {
 });
 
 Route::middleware([
-    'auth',  // ← Changed from 'auth:sanctum' to 'auth'
+    'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
@@ -19,12 +19,12 @@ Route::middleware([
 
 // Admin routes
 Route::middleware([
-    'auth',  // ← Changed from 'auth:sanctum' to 'auth'
+    'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
     'admin'
 ])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::get('/flares', [AdminController::class, 'flares'])->name('flares');
     
@@ -41,18 +41,5 @@ Route::get('/test-session', function () {
         'session_driver' => config('session.driver'),
         'session_domain' => config('session.domain'),
         'app_url' => config('app.url'),
-    ]);
-});
-
-Route::get('/auth-check', function () {
-    return response()->json([
-        'authenticated' => auth()->check(),
-        'user_id' => auth()->id(),
-        'user_email' => auth()->user()?->email,
-        'guards' => [
-            'web' => auth('web')->check(),
-            'sanctum' => auth('sanctum')->check(),
-        ],
-        'session_id' => session()->getId(),
     ]);
 });
