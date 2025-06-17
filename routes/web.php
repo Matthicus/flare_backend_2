@@ -8,7 +8,7 @@ Route::get('/', function () {
 });
 
 Route::middleware([
-    'auth:sanctum',
+    'auth',  // ← Changed from 'auth:sanctum' to 'auth'
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
@@ -19,12 +19,12 @@ Route::middleware([
 
 // Admin routes
 Route::middleware([
-    'auth:sanctum',
+    'auth',  // ← Changed from 'auth:sanctum' to 'auth'
     config('jetstream.auth_session'),
     'verified',
     'admin'
 ])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::get('/flares', [AdminController::class, 'flares'])->name('flares');
     
