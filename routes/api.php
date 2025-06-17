@@ -11,14 +11,14 @@ Route::options('{any}', function () {
     return response('', 200);
 })->where('any', '.*');
 
-// Authentication routes (no auth required)
-Route::prefix('auth')->group(function () {
+// Authentication routes with strict rate limiting (prevent brute force)
+Route::prefix('auth')->middleware('throttle:5,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// Public routes - anyone can view flares (no auth required)
-Route::prefix('flares')->group(function () {
+// Public routes with generous rate limiting (users browse maps frequently)
+Route::prefix('flares')->middleware('throttle:100,1')->group(function () {
     Route::get('/', [FlareController::class, 'index']); // Get all flares for map
     Route::get('/{flare}', [FlareController::class, 'show']); // Get specific flare details
     Route::get('/nearby/known-places', [FlareController::class, 'nearbyKnownPlaces']); // Get nearby known places
@@ -26,12 +26,14 @@ Route::prefix('flares')->group(function () {
 
 // Protected routes - require authentication via Sanctum
 Route::middleware('auth:sanctum')->group(function () {
-    // Auth routes
-    Route::post('/auth/logout', [AuthController::class, 'logout']);
-    Route::get('/auth/user', [AuthController::class, 'user']);
+    // Auth routes (moderate rate limiting)
+    Route::middleware('throttle:20,1')->group(function () {
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::get('/auth/user', [AuthController::class, 'user']);
+    });
     
-    // Flare management - users must be logged in
-    Route::prefix('flares')->group(function () {
+    // Flare management with moderate rate limiting (prevent spam)
+    Route::prefix('flares')->middleware('throttle:10,1')->group(function () {
         Route::post('/', [FlareController::class, 'store']); // Create new flare
         Route::put('/{flare}', [FlareController::class, 'update']); // Update own flare
         Route::delete('/{flare}', [FlareController::class, 'destroy']); // Delete own flare
@@ -39,8 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{flare}/contribute', [FlareController::class, 'contribute']); // Add to existing flare
     });
     
-    // User profile routes
-    Route::prefix('user')->group(function () {
+    // User profile routes with generous rate limiting
+    Route::prefix('user')->middleware('throttle:30,1')->group(function () {
         Route::get('/', [UserController::class, 'profile']); // Get current user profile
         Route::put('/profile', [UserController::class, 'updateProfile']); // Update profile (name, username)
         Route::post('/profile-photo', [UserController::class, 'updateProfilePhoto']); // Update profile photo
@@ -50,5 +52,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     
     // Legacy user route (keep for compatibility)
-    Route::get('/user', [UserController::class, 'profile']); // Changed from closure to controller method
+    Route::get('/user', [UserController::class, 'profile'])->middleware('throttle:30,1');
 });

@@ -153,6 +153,10 @@ class FlareController extends Controller
     {
         $flare = Flare::findOrFail($id);
 
+            if ($flare->user_id !== Auth::id()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
         $validated = $request->validate([
             'note' => 'required|string|max:255',
             'photo' => 'nullable|image|max:5120',
