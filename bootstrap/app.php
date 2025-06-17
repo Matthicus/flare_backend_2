@@ -17,6 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
         
+        // Exclude routes from CSRF protection (temporary for debugging)
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+            'login',
+            'admin*',
+        ]);
+        
         // Register admin middleware alias
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
